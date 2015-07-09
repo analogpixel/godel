@@ -55,11 +55,17 @@ class simpleTest(unittest.TestCase):
     self.assertEqual( unpad(set(2)), [1,0])
 
   def test_fdiv(self):
-    #self.assertEqual( fdiv(set(10), set(2) )[0], set(5))
-    #self.assertEqual( fdiv(set(11), set(2) )[2], False)
-    #self.assertEqual( fdiv(set(12), set(2) )[0], set(6))
+    self.assertEqual( fdiv(set(10), set(2) )[0], set(5))
+    self.assertEqual( fdiv(set(11), set(2) )[2], False)
+    self.assertEqual( fdiv(set(12), set(2) )[0], set(6))
     self.assertEqual( fdiv(set(565950), set(2) )[0], set(282975))
-    #self.assertEqual( fdiv(set(224), set(2) )[0], set(112))
+    self.assertEqual( fdiv(set(224), set(2) )[0], set(112))
+
+  def test_fmult(self):
+    self.assertEqual( fmult(set(10), set(2)), set(20))
+    self.assertEqual( fmult(set(15), set(3)), set(45))
+    self.assertEqual( fmult(set(0), set(2)), set(0))
+    self.assertEqual( fmult(set(99), set(99)), set(9801))
 
 
 
@@ -88,6 +94,57 @@ def set(n):
 
 one = set(1)
 zero = set(0)
+
+def fmult(b1,b2):
+
+  # get rid of any un-needed leading zeros
+  b1 = unpad(b1)
+  b2= unpad(b2)
+
+  # if either set is empty it's a zero, so
+  # zero times anything is zero, so just
+  # return zero
+  if b1 == [] or b2 == []:
+    return set(0)
+
+  # [:] deep copy
+  # we want b2 to be the shorter of the two numbers
+  if len(b2) > len(b1):
+    b3 = b1[:]
+    b1 = b2[:]
+    b2 = b3[:]
+
+  # every time you pick a new number from the bottom
+  # you move over one
+  inc=0
+
+  # the final answer
+  runningSum = set(0)
+
+  # while the bottom number still has bits to take
+  while len(b2) != 0:
+
+    # grab the current bit from the right
+    currentbit = b2.pop()
+
+    # if the bit is 1, then add the right side padding based on
+    # what position we are in (determined by inc) and then
+    # add that to the running total.  If the bit is 0, then
+    # everything works out to be zero, so we don't need to do
+    # anything (yay binary math.)
+    if currentbit == 1:
+      # print "sum of:", unpad(runningSum), " and " , b1 + [0]*inc
+
+      # [0] * inc says, if we are the 2nd number in, then append [0,0]
+      # to the current number. so if the current number was [1,0] the
+      # final result would be [1,0,0,0]  and that is added to the
+      # running sum
+      runningSum = sum(runningSum, b1 + [0]*inc)
+
+    # increase the counter by one
+    inc = inc + 1
+
+  return runningSum
 
 def sub(b1,b2):
   b1 = pad(b1)
@@ -240,7 +297,7 @@ z = 1
 for i in range(len(make)):
   #print primes[i], tab[make[i]]
   z = z * primes[i] ** tab[make[i]]
-  a =  mult(a, pow(
+  a =  fmult(a, pow(
             set(primes[i]),
             set(tab[make[i]]
               )))
