@@ -7,7 +7,7 @@
 import sys
 import unittest
 
-MAX=128
+MAX=500
 debug=False
 
 class simpleTest(unittest.TestCase):
@@ -190,9 +190,10 @@ def pow(b1,b2):
   if b2 == zero:
     return one
 
-  tot = b1
+  tot = b1[:]
   while b2 != one:
-    tot = mult(tot,b1)
+    tot = fmult(tot[:],b1[:])
+    # print "tot:", unpad(tot), " b1:", unpad(b1), " b2:" , unpad(b2)
     b2 = dec(b2)
   return tot
 
@@ -202,6 +203,8 @@ def pad(b1):
   return b1
 
 def unpad(b1):
+  if b1 == []:
+    return []
   while True:
     if b1[0] == 0:
       b1.pop(0)
@@ -219,6 +222,11 @@ def fdiv(b1,b2):
   b1 = unpad(b1)
   div = []
   ans = []
+
+  if b1 == []:
+    return set(0)
+  if b2 == []:
+    return set(0)
 
   while True:
     div.append( b1.pop(0) )
@@ -287,16 +295,18 @@ def lt(b1,b2):
 tab = {'a': 1, 'b': 2, 'c': 3, 'd': 4}
 map2 = dict(zip(tab.values(), tab.keys()))
 
-primes = [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71]
+primes = [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97,101,103,107,109,113,127,131,137,139,149]
 
-make="aabcaccda"
+make="aabcaccdadcbabccd"
 
 a = set(1)
 z = 1
 
+print "creating godel number"
 for i in range(len(make)):
   #print primes[i], tab[make[i]]
   z = z * primes[i] ** tab[make[i]]
+  # print unpad(a), primes[i], tab[make[i]]
   a =  fmult(a, pow(
             set(primes[i]),
             set(tab[make[i]]
@@ -307,9 +317,11 @@ for i in range(len(make)):
 #print a
 #print ten(a)
 
+print "writing to file"
 myfile = open("out.txt", "w")
 myfile.write( ",".join(map(str,unpad(a))) + "\n" )
 
+print "deconstructing number"
 i=0
 x=0
 while a != one:
